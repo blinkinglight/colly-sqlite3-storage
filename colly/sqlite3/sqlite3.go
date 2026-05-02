@@ -142,13 +142,13 @@ func (s *Storage) Cookies(u *url.URL) string {
 	s.mu.RLock()
 
 	//cookiesStr, err := s.Client.Get(s.getCookieID(u.Host)).Result()
-	statement, err := s.dbh.Select("cookies").Table("cookies").Where("host = ?", u.Host).Rows()
-	if err != nil {
+	row := s.dbh.Select("cookies").Table("cookies").Where("host = ?", u.Host).Row()
+	if row.Err() != nil {
 		s.mu.RUnlock()
 		return ""
 	}
 
-	err = statement.Scan(&cookies)
+	err := row.Scan(&cookies)
 
 	s.mu.RUnlock()
 
