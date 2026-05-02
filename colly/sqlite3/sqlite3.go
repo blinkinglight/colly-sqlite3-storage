@@ -149,18 +149,22 @@ func (s *Storage) Cookies(u *url.URL) string {
 	s.mu.RLock()
 
 	//cookiesStr, err := s.Client.Get(s.getCookieID(u.Host)).Result()
-	statement := s.dbh.Find("SELECT cookies FROM cookies where host = ?", u.Host)
+	statement, err := s.dbh.Select("cookies").Table("cookies").Where("host = ?", u.Host).Rows()
+	if err != nil {
+		s.mu.RUnlock()
+		return ""
+	}
 
-	err := statement.Scan(&cookies)
+	err = statement.Scan(&cookies)
 
 	s.mu.RUnlock()
 
 	if err != nil {
-		if strings.Contains(statement.Error.Error(), "no rows") {
+		if strings.Contains(err.Error(), "no rows") {
 			return ""
 		}
 
-		log.Printf("Cookies() .Get error %s", err.Error.Error())
+		log.Printf("Cookies() .Get error %s", err.Error())
 	}
 
 	return cookies
