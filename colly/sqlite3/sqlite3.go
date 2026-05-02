@@ -105,7 +105,7 @@ func (s *Storage) Visited(requestID uint64) error {
 func (s *Storage) IsVisited(requestID uint64) (bool, error) {
 	var count int64
 	// statement := s.dbh.Select("SELECT COUNT(*) FROM visited where requestId = ?", requestID)
-	err := s.dbh.Table("visited").Where("requestId = ?", requestID).Count(&count).Error
+	err := s.dbh.Table("visited").Where("requestId = ?", int64(requestID)).Count(&count).Error
 	// [golang/go/issues/6113] we can't use uint64 with the high bit set
 	// but we can cast it and store as an int64 without data loss
 	if err != nil {
