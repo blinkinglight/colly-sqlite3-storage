@@ -90,11 +90,11 @@ func (s *Storage) Close() error {
 }
 
 // Visited implements colly/storage.Visited()
-func (s *Storage) Visited(requestID int64) error {
+func (s *Storage) Visited(requestID uint64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	statement := s.dbh.Exec("INSERT INTO visited (requestID, visited) VALUES (?, 1)", requestID)
+	statement := s.dbh.Exec("INSERT INTO visited (requestID, visited) VALUES (?, 1)", int64(requestID))
 	if statement.Error != nil {
 		return statement.Error
 	}
@@ -102,7 +102,7 @@ func (s *Storage) Visited(requestID int64) error {
 }
 
 // IsVisited implements colly/storage.IsVisited()
-func (s *Storage) IsVisited(requestID int64) (bool, error) {
+func (s *Storage) IsVisited(requestID uint64) (bool, error) {
 	var count int
 	statement := s.dbh.Select("SELECT COUNT(*) FROM visited where requestId = ?", requestID)
 	// [golang/go/issues/6113] we can't use uint64 with the high bit set
